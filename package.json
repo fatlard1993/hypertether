@@ -1,0 +1,64 @@
+{
+	"name": "@vanilla-bean/hypertether",
+	"version": "1.0.0",
+	"description": "The data layer for framework-free JavaScript. Reactive subscriptions, cache invalidation, and pagination built on fetch. Zero dependencies.",
+	"keywords": [
+		"fetch",
+		"cache",
+		"reactive",
+		"subscriptions",
+		"data-fetching",
+		"vanilla-js",
+		"web-components",
+		"cache-invalidation",
+		"pagination",
+		"stale-while-revalidate"
+	],
+	"type": "module",
+	"main": "./index.js",
+	"types": "./index.d.ts",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"import": "./index.js"
+		}
+	},
+	"sideEffects": false,
+	"files": [
+		"src/hydrateUrl.js",
+		"src/paginate.js",
+		"src/request.js",
+		"index.js",
+		"index.d.ts"
+	],
+	"scripts": {
+		"test": "bun test",
+		"test:watch": "bun test --watch",
+		"lint": "bun --bun eslint",
+		"lint:fix": "bun --bun eslint --fix",
+		"format": "bun run lint:fix && bun --bun prettier --write . | grep -q unchanged",
+		"version": "npm version",
+		"prepublishOnly": "bun test"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	},
+	"license": "MIT",
+	"author": "justfatlard (https://github.com/fatlard1993)",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fatlard1993/hypertether.git"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9",
+		"bun-types": "^1.3.14",
+		"eslint": "^9",
+		"eslint-plugin-import": "^2.32.0",
+		"eslint-plugin-jsdoc": "^63.0.0",
+		"eslint-plugin-spellcheck": "0.0.20",
+		"eslint-plugin-unicorn": "^64.0.0",
+		"eslint-plugin-write-good-comments": "^0.2.0",
+		"globals": "^17.0.0",
+		"prettier": "^3.8.3"
+	}
+}
