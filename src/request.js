@@ -422,6 +422,16 @@ export const createClient = () => {
 					wakeSubKeys.add(cacheSubKey);
 				}
 			});
+			// Subscriptions whose cache entry TTL-expired (or was never written) are invisible to
+			// the cache walk above; match them directly so invalidation still wakes them.
+			subscriptions.forEach((subs, wakeKey) => {
+				if (wakeSubKeys.has(wakeKey)) return;
+				// All subscribers on a subKey share the same apiId, so one match covers the group.
+				const matched = Object.values(subs).some(({ cacheId: subCacheId, apiId: subApiId }) =>
+					checkInvalidates(invalidates, { cacheId: subCacheId, apiId: subApiId }),
+				);
+				if (matched) wakeSubKeys.add(wakeKey);
+			});
 			wakeSubKeys.forEach(wakeKey => {
 				if (subscriptions.has(wakeKey)) {
 					// Each subscriber's refetch sends isFetching: true before firing.
@@ -704,6 +714,7 @@ export const createClient = () => {
 					unsubscribe,
 					refetch,
 					cacheId,
+					apiId,
 					url,
 					publicOptions,
 					lastResult: result,

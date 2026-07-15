@@ -527,6 +527,32 @@ describe('request library', () => {
 
 			expect(onResponse.mock.calls.length).toBeGreaterThan(callsBefore);
 		});
+
+		it('should refetch subscriptions whose cache entry has TTL-expired', async () => {
+			const onResponse = mock();
+			await GET('/users', { apiId: 'users', invalidateAfter: 50, onResponse });
+			const callsBefore = onResponse.mock.calls.length;
+
+			await new Promise(resolve => setTimeout(resolve, 100));
+			expect(cache.size).toBe(0);
+
+			await POST('/users', { body: { name: 'John' }, invalidates: ['users'] });
+
+			expect(onResponse.mock.calls.length).toBeGreaterThan(callsBefore);
+		});
+
+		it('should match a TTL-expired subscription by cacheId', async () => {
+			const onResponse = mock();
+			await GET('/users', { cacheId: 'custom-users', invalidateAfter: 50, onResponse });
+			const callsBefore = onResponse.mock.calls.length;
+
+			await new Promise(resolve => setTimeout(resolve, 100));
+			expect(cache.size).toBe(0);
+
+			await POST('/users', { invalidates: ['custom-users'] });
+
+			expect(onResponse.mock.calls.length).toBeGreaterThan(callsBefore);
+		});
 	});
 
 	describe('enabled option', () => {
