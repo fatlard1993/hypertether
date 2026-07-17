@@ -35,6 +35,7 @@ module.exports = {
 		'invalidates',
 		'invalidation',
 		'jsdoc',
+		'loopback',
 		'microtask',
 		'mjs',
 		'onError',

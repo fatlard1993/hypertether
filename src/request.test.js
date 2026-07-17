@@ -3262,4 +3262,24 @@ describe('request library', () => {
 			client.configure({ timeout: undefined });
 		});
 	});
+
+	describe('insecure contexts', () => {
+		// Browsers hide crypto.randomUUID outside secure contexts (https or loopback);
+		// requests and subscriptions must still work on a page served over plain http
+		it('should complete requests and subscriptions without crypto.randomUUID', async () => {
+			const originalRandomUUID = crypto.randomUUID;
+			delete crypto.randomUUID;
+
+			try {
+				const result = await GET('/users', { onSuccess: () => {} });
+
+				expect(result.status).toBe('success');
+				expect(typeof result.subscriptionId).toBe('string');
+
+				result.unsubscribe?.();
+			} finally {
+				crypto.randomUUID = originalRandomUUID;
+			}
+		});
+	});
 });

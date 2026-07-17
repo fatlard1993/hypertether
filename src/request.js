@@ -2,6 +2,13 @@ import { hydrateUrl } from './hydrateUrl.js';
 
 const arraysEqual = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 
+// crypto.randomUUID requires a secure context (https or loopback); pages served over plain
+// http still need unique ids for the pending and subscription maps
+const genId = () =>
+	typeof crypto.randomUUID === 'function'
+		? crypto.randomUUID()
+		: Math.random().toString(36).slice(2, 11) + Math.random().toString(36).slice(2, 11);
+
 const makeApplySelect = select => r => (select != null && r.status === 'success' ? { ...r, body: select(r.body) } : r);
 
 const parseBody = (response, responseType, contentType) => {
@@ -397,7 +404,7 @@ export const createClient = () => {
 
 		// ── Setup ────────────────────────────────────────────────────────────────
 		const controller = new AbortController();
-		const execId = crypto.randomUUID();
+		const execId = genId();
 		pendingControllers.set(execId, controller);
 
 		// Synchronous options merging: no await, preserves in-flight deduplication timing.
@@ -666,7 +673,7 @@ export const createClient = () => {
 			const wrappedOnFetching = wrap(cbFetching) ?? null;
 
 			const effectiveScope = subscribeScope ?? scope;
-			const subscriptionId = crypto.randomUUID();
+			const subscriptionId = genId();
 			let intervalId;
 
 			const unsubscribe = () => {
