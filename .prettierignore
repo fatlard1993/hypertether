@@ -1,0 +1,4 @@
+# Prettier's markdown prose-wrap joins adjacent non-blank lines — it can merge a `>` module
+# pointer or `## Header` into a following `**method:**`/`**setup:**` annotation when there's
+# no blank line between them, breaking the LLD grammar's line-based parsing.
+**/*.lld.md
