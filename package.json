@@ -36,6 +36,8 @@
 		"test:watch": "bun test --watch",
 		"lint": "bun --bun eslint",
 		"lint:fix": "bun --bun eslint --fix",
+		"lld": "lldtdd run",
+		"lld:lint": "lldtdd lint",
 		"format": "bun run lint:fix && bun --bun prettier --write . | grep -q unchanged",
 		"version": "npm version",
 		"prepublishOnly": "bun test",
