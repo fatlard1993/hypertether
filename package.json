@@ -38,7 +38,9 @@
 		"lint:fix": "bun --bun eslint --fix",
 		"format": "bun run lint:fix && bun --bun prettier --write . | grep -q unchanged",
 		"version": "npm version",
-		"prepublishOnly": "bun test"
+		"prepublishOnly": "bun test",
+		"prepare": "bun run prepare:githooks",
+		"prepare:githooks": "[ -n \"$CI\" ] && exit 0 || (git config --local core.hooksPath .githooks || echo 'Can not set git hooks')"
 	},
 	"engines": {
 		"node": ">=18.0.0"
@@ -59,6 +61,7 @@
 		"eslint-plugin-unicorn": "^64.0.0",
 		"eslint-plugin-write-good-comments": "^0.2.0",
 		"globals": "^17.0.0",
+		"lldtdd": "^0.1.0",
 		"prettier": "^3.8.3"
 	}
 }

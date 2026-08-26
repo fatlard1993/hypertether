@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# lldtdd is a real devDependency now: installed by `bun install`, resolved from
+# node_modules -- no more sibling-checkout path. If it is not installed yet
+# (fresh clone before bun install), skip rather than block the commit on it.
+changedLLDs=$(git diff --name-only --cached | grep -c "\.lld\.md$")
+if [ "$changedLLDs" -gt 0 ]; then
+	if [ -x "node_modules/.bin/lldtdd" ]; then
+		bun run lldtdd lint || exit 1
+	else
+		echo "lldtdd not installed -- run bun install (staged .lld.md changes not checked)"
+	fi
+fi
