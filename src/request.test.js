@@ -352,6 +352,37 @@ describe('request library', () => {
 			expect(onResponse.mock.calls.length).toBe(callsBefore);
 		});
 
+		it('a subscriber served from the cache gets its own unsubscribe, which leaves the first subscriber alone', async () => {
+			const first = mock();
+			const second = mock();
+
+			const firstResult = await GET('/users', { apiId: 'users', onResponse: first });
+			const secondResult = await GET('/users', { apiId: 'users', onResponse: second });
+
+			expect(secondResult.subscriptionId).toBeTruthy();
+			expect(secondResult.subscriptionId).not.toBe(firstResult.subscriptionId);
+
+			secondResult.unsubscribe();
+
+			const firstBefore = first.mock.calls.length;
+			const secondBefore = second.mock.calls.length;
+
+			await POST('/users', { body: { name: 'John' }, invalidates: ['users'] });
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			expect(first.mock.calls.length).toBeGreaterThan(firstBefore);
+			expect(second.mock.calls.length).toBe(secondBefore);
+		});
+
+		it('a result served from the cache is a copy, so changing it leaves the cache alone', async () => {
+			await GET('/users', { apiId: 'users' });
+			const served = await GET('/users', { apiId: 'users' });
+
+			served.body = 'changed';
+
+			expect((await GET('/users', { apiId: 'users' })).body).toEqual({ data: 'test' });
+		});
+
 		it('should handle multiple subscriptions to same apiId', async () => {
 			const onResponse1 = mock();
 			const onResponse2 = mock();

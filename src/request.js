@@ -755,6 +755,15 @@ export const createClient = () => {
 
 		if (useCache && cache.has(cacheId)) {
 			const cachedResult = cache.get(cacheId).result;
+			// The cache's data, with this call's own controls: the cached result's belong to whichever call stored it
+			const ownResult = cached => ({
+				...applySelect(cached),
+				options: result.options,
+				subscriptionId: result.subscriptionId,
+				unsubscribe: result.unsubscribe,
+				refetch: result.refetch,
+				subscribe: result.subscribe,
+			});
 			if (staleWhileRevalidate) {
 				// Notify all subscribers that a background revalidation is starting.
 				notifySubscribers(subKey, null, { ...cachedResult, isFetching: true });
@@ -788,11 +797,11 @@ export const createClient = () => {
 					pending.set(cacheId, revalidatePromise);
 					revalidatePromise.finally(() => pending.delete(cacheId));
 				}
-				return { ...applySelect(cachedResult), isFetching: true };
+				return { ...ownResult(cachedResult), isFetching: true };
 			}
 			// Newly registered subscriber on a warm cache: notify immediately, skip loading state.
 			notifySubscribers(subKey, null, cachedResult);
-			return applySelect(cachedResult);
+			return ownResult(cachedResult);
 		}
 
 		// Deduplicate concurrent requests. Applies when caching is active or deduplicate: true.
