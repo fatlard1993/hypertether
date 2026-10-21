@@ -1,6 +1,6 @@
 {
 	"name": "@vanilla-bean/hypertether",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "The data layer for framework-free JavaScript. Reactive subscriptions, cache invalidation, and pagination built on fetch. Zero dependencies.",
 	"keywords": [
 		"fetch",
