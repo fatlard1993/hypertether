@@ -25,6 +25,7 @@
 	},
 	"sideEffects": false,
 	"files": [
+		"src/failureReason.js",
 		"src/hydrateUrl.js",
 		"src/paginate.js",
 		"src/request.js",
