@@ -856,6 +856,35 @@ export const createClient = () => {
 	const PATCH = (url, options = {}) => request(url, { method: 'PATCH', ...options });
 	const DELETE = (url, options = {}) => request(url, { method: 'DELETE', ...options });
 
+	/**
+	 * The five requests for a REST collection: list and create at `path`, read, update (PATCH) and delete at
+	 * `path/:id`. Reads share `apiId` (a record's is `[apiId, id]`), and every write invalidates `invalidates`, so a
+	 * change refetches every list and record subscribed. Per-call options override the defaults.
+	 * @example
+	 * const games = resource('/api/games');
+	 * games.list({ onSuccess }); games.create({ body }); games.delete(id, { invalidates: ['games', 'scores'] });
+	 * @param {string} path - The collection's URL
+	 * @param {object} [options] - Defaults
+	 * @param {string} [options.apiId] - The reads' subscription group; defaults to the path's last segment
+	 * @param {Array} [options.invalidates] - What a write invalidates; defaults to `[apiId]`
+	 * @returns {{ list: Function, read: Function, create: Function, update: Function, delete: Function }} The requests;
+	 *   any other option given here goes to the reads
+	 */
+	const resource = (
+		path,
+		{ apiId = path.split('/').filter(Boolean).at(-1), invalidates = [apiId], ...readOptions } = {},
+	) => {
+		const item = `${path}/:id`;
+
+		return {
+			list: options => GET(path, { apiId, ...readOptions, ...options }),
+			read: (id, options) => GET(item, { apiId: [apiId, id], urlParameters: { id }, ...readOptions, ...options }),
+			create: options => POST(path, { invalidates, ...options }),
+			update: (id, options) => PATCH(item, { invalidates, urlParameters: { id }, ...options }),
+			delete: (id, options) => DELETE(item, { invalidates, urlParameters: { id }, ...options }),
+		};
+	};
+
 	return {
 		cache: readOnly(cache),
 		subscriptions: readOnly(subscriptions),
@@ -869,6 +898,7 @@ export const createClient = () => {
 		PUT,
 		PATCH,
 		DELETE,
+		resource,
 	};
 };
 
@@ -885,4 +915,5 @@ export const {
 	PUT,
 	PATCH,
 	DELETE,
+	resource,
 } = createClient();

@@ -123,6 +123,30 @@ export interface PaginateHandle<T = unknown> {
 	readonly isLoading: boolean;
 }
 
+export interface ResourceOptions<T = unknown, Context = unknown> extends RequestOptions<T, Context> {
+	/** The reads' subscription group; a record's is `[apiId, id]`. Defaults to the path's last segment. */
+	apiId?: string;
+	/** What every write invalidates. Defaults to `[apiId]`. */
+	invalidates?: (string | string[])[];
+}
+
+export interface Resource {
+	list: <T = unknown, Context = unknown>(options?: RequestOptions<T, Context>) => Promise<RequestResult<T>>;
+	read: <T = unknown, Context = unknown>(
+		id: string | number,
+		options?: RequestOptions<T, Context>,
+	) => Promise<RequestResult<T>>;
+	create: <T = unknown, Context = unknown>(options?: RequestOptions<T, Context>) => Promise<RequestResult<T>>;
+	update: <T = unknown, Context = unknown>(
+		id: string | number,
+		options?: RequestOptions<T, Context>,
+	) => Promise<RequestResult<T>>;
+	delete: <T = unknown, Context = unknown>(
+		id: string | number,
+		options?: RequestOptions<T, Context>,
+	) => Promise<RequestResult<T>>;
+}
+
 export interface Client {
 	cache: ReadonlyMap<string, unknown>;
 	subscriptions: ReadonlyMap<string, Record<string, unknown>>;
@@ -149,6 +173,8 @@ export interface Client {
 		url: string,
 		options?: RequestOptions<T, Context>,
 	) => Promise<RequestResult<T>>;
+	/** The five requests for a REST collection at `path`: list, read, create, update (PATCH), delete. */
+	resource: (path: string, options?: ResourceOptions) => Resource;
 }
 
 export declare function createClient(): Client;
@@ -194,3 +220,7 @@ export declare function DELETE<T = unknown, Context = unknown>(
 	url: string,
 	options?: RequestOptions<T, Context>,
 ): Promise<RequestResult<T>>;
+/** The five requests for a REST collection at `path`: list, read, create, update (PATCH), delete. */
+export declare function resource(path: string, options?: ResourceOptions): Resource;
+/** Why a request failed, in words for a person; '' for a result that didn't fail. */
+export declare function failureReason(result: RequestResult | undefined): string;

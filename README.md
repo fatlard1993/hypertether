@@ -620,6 +620,28 @@ await POST('/users', {
 });
 ```
 
+`failureReason(result)` puts a failure in words for a person: the server's `{ error }` or text, the network error's message, or the status. It is `''` for a result that didn't fail.
+
+```js
+const result = await POST('/users', { body: data });
+
+if (result.status === 'error') showError(`Could not save: ${failureReason(result)}`);
+```
+
+### A REST collection
+
+`resource(path, options?)` is the five requests a collection served at `path` answers: `list` and `create` at `path`, `read`, `update` (PATCH) and `delete` at `path/:id`. Reads share an `apiId` (the path's last segment unless given; a record's is `[apiId, id]`), and every write invalidates `[apiId]`, so a change refetches every list and record subscribed. Any other option given to `resource` goes to the reads, and a call's own options win.
+
+```js
+export const games = resource('/api/games');
+
+games.list({ onSuccess: ({ body }) => render(body) });
+games.read(id);
+games.create({ body: { name: 'Chess' } });
+games.update(id, { body: { players: 4 } });
+games.delete(id, { invalidates: ['games', 'scores'] }); // a delete that cascades
+```
+
 ### Multi-Resource Dashboard
 
 ```js
