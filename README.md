@@ -81,7 +81,8 @@ await POST('/users', { body: newUser, invalidates: ['users'] }); // renderUsers 
 - **Optimistic updates:** apply changes before the server confirms them; roll back on failure via `onMutate` / `onSettled`
 - **Focus and reconnect refetch:** opt-in automatic revalidation on tab visibility change and network reconnect
 - **Request cancellation:** `resetRequest()` aborts all in-flight requests immediately
-- **Non-throwing errors:** HTTP errors are captured in `result.status`; nothing throws on 4xx/5xx
+- **Non-throwing errors:** HTTP errors are captured in `result.status`; nothing throws on 4xx/5xx, and `failureReason(result)` puts one in words
+- **REST collections:** `resource('/api/games')` gives `list`, `read`, `create`, `update` and `delete`, with writes refetching the reads
 - **Zero dependencies**
 
 ## Core Concepts
@@ -369,7 +370,7 @@ DELETE(url, options?)
 | `apiId` | `string\|string[]\|Function` | `method+url` | Subscription group key. All subscribers using this key refetch together when any matching cache entry is invalidated. |
 | `cacheId` | `string\|Function` | `method+finalUrl` | Cache storage key. Override when multiple URLs represent the same logical resource. |
 | `select` | `Function` | - | Transform `(rawBody) => T` applied at delivery time. Cache stores the raw body; each subscriber applies its own select independently. |
-| `invalidates` | `string[]` | - | Cache/API IDs to clear on a successful response, triggering subscriber refetches. |
+| `invalidates` | `(string\|string[])[]` | - | Cache/API IDs to clear on a successful response, triggering subscriber refetches. An array element matches an array `apiId` in any order. |
 | `invalidateAfter` | `number\|false` | `60000` | Cache TTL in ms. `false` = permanent. `0` = expire on next tick. |
 | `cache` | `boolean` | auto | Override cache behavior. Auto: `true` for GET, `false` for mutations. |
 | `deduplicate` | `boolean` | `false` | A second concurrent call returns the first call's Promise instead of firing again. Uses `cacheId` as the dedup key. |
@@ -400,10 +401,11 @@ DELETE(url, options?)
 	isFetching: boolean,         // true whenever a fetch is in flight
 	body: any,                   // parsed response, transformed by select if provided
 	contentType: string|null,
-	response: Response,          // native fetch Response
+	response: Response|null,     // native fetch Response; null when the request never got one
 	originalUrl: string,
 	url: string,
-	apiId: string,
+	options: object,             // the request options, without the callbacks and scope
+	apiId: string|string[],
 	cacheId: string,
 	subscriptionId: string|null,
 	refetch(overrides?): Promise<RequestResult>,
@@ -511,7 +513,7 @@ const result = await client.GET('/users');
 const { GET, resetRequest } = createClient();
 ```
 
-`createClient()` returns: `{ cache, subscriptions, request, resetRequest, clearCache, setCache, configure, GET, POST, PUT, PATCH, DELETE }`.
+`createClient()` returns: `{ cache, subscriptions, request, resetRequest, clearCache, setCache, configure, GET, POST, PUT, PATCH, DELETE, resource }`.
 
 ## Advanced Usage
 
@@ -620,9 +622,11 @@ await POST('/users', {
 });
 ```
 
-`failureReason(result)` puts a failure in words for a person: the server's `{ error }` or text, the network error's message, or the status. It is `''` for a result that didn't fail.
+`failureReason(result)` puts a failure in words for a person: the server's `{ error }` or text, the network error's message, or the status (`HTTP 404`), and "The server could not be reached" when there's nothing else to go on. It is `''` for a result that didn't fail, or no result at all.
 
 ```js
+import { POST, failureReason } from '@vanilla-bean/hypertether';
+
 const result = await POST('/users', { body: data });
 
 if (result.status === 'error') showError(`Could not save: ${failureReason(result)}`);
@@ -630,9 +634,11 @@ if (result.status === 'error') showError(`Could not save: ${failureReason(result
 
 ### A REST collection
 
-`resource(path, options?)` is the five requests a collection served at `path` answers: `list` and `create` at `path`, `read`, `update` (PATCH) and `delete` at `path/:id`. Reads share an `apiId` (the path's last segment unless given; a record's is `[apiId, id]`), and every write invalidates `[apiId]`, so a change refetches every list and record subscribed. Any other option given to `resource` goes to the reads, and a call's own options win.
+`resource(path, options?)` is the five requests a collection served at `path` answers: `list` and `create` at `path`, `read`, `update` (PATCH) and `delete` at `path/:id`. Reads share an `apiId` (the path's last segment unless given; a record's is `[apiId, id]`), and every write invalidates `[apiId]` unless `resource` is given its own `invalidates`, so a change refetches every list and record subscribed. Any other option given to `resource` goes to the reads, and a call's own options win.
 
 ```js
+import { resource } from '@vanilla-bean/hypertether';
+
 export const games = resource('/api/games');
 
 games.list({ onSuccess: ({ body }) => render(body) });
