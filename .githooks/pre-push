@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+# The files the pushed commits change: against what the remote has, or, for a new branch or a
+# remote commit not here, everything not on the remote yet. A deleted ref pushes nothing.
+zero=0000000000000000000000000000000000000000
+pushed=$(while read -r _localRef localSha _remoteRef remoteSha; do
+	[ "$localSha" = "$zero" ] && continue
+	if [ "$remoteSha" != "$zero" ] && git cat-file -e "$remoteSha^{commit}" 2>/dev/null; then
+		git log --format= --name-only "$remoteSha..$localSha"
+	else
+		git log --format= --name-only "$localSha" --not --remotes="$1"
+	fi
+done)
+
+# lldtdd is a real devDependency now: installed by `bun install`, resolved from
+# node_modules -- no more sibling-checkout path. If it is not installed yet
+# (fresh clone before bun install), skip rather than block the push on it.
+if echo "$pushed" | grep -q '\.lld\.md$'; then
+	if [ -x "node_modules/.bin/lldtdd" ]; then
+		bun run lldtdd lint || exit 1
+	else
+		echo "lldtdd not installed -- run bun install (pushed .lld.md changes not checked)"
+	fi
+fi
