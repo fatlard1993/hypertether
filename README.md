@@ -622,7 +622,7 @@ await POST('/users', {
 });
 ```
 
-`failureReason(result)` puts a failure in words for a person: the server's `{ error }` or text, the network error's message, or the status (`HTTP 404`), and "The server could not be reached" when there's nothing else to go on. It is `''` for a result that didn't fail, or no result at all.
+`failureReason(result)` puts a failure in words for a person: the server's `{ error }` (or, without one, `{ message }`) or text, the network error's message, or the status (`HTTP 404`), and "The server could not be reached" when there's nothing else to go on. It is `''` for a result that didn't fail, or no result at all.
 
 ```js
 import { POST, failureReason } from '@vanilla-bean/hypertether';

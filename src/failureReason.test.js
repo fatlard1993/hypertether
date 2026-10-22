@@ -6,6 +6,11 @@ describe('failureReason', () => {
 		expect(failureReason({ status: 'error', body: { error: 'name is required' }, response: { status: 400 } })).toBe(
 			'name is required',
 		);
+		expect(failureReason({ status: 'error', body: { message: 'Room is full' }, response: { status: 409 } })).toBe(
+			'Room is full',
+		);
+		expect(failureReason({ status: 'error', body: { error: 'Bad id', message: 'Room is full' } })).toBe('Bad id');
+		expect(failureReason({ status: 'error', body: { message: '' }, response: { status: 500 } })).toBe('HTTP 500');
 		expect(failureReason({ status: 'error', body: 'Not allowed\n', response: { status: 403 } })).toBe('Not allowed');
 		expect(failureReason({ status: 'error', body: new TypeError('Failed to fetch') })).toBe('Failed to fetch');
 		expect(failureReason({ status: 'error', body: {}, response: { status: 502 } })).toBe('HTTP 502');
