@@ -12,6 +12,13 @@ describe('failureReason', () => {
 		expect(failureReason({ status: 'error', body: { error: 'Bad id', message: 'Room is full' } })).toBe('Bad id');
 		expect(failureReason({ status: 'error', body: { message: '' }, response: { status: 500 } })).toBe('HTTP 500');
 		expect(failureReason({ status: 'error', body: 'Not allowed\n', response: { status: 403 } })).toBe('Not allowed');
+		expect(
+			failureReason({
+				status: 'error',
+				body: '<html><body><h1>502 Bad Gateway</h1></body></html>',
+				response: { status: 502 },
+			}),
+		).toBe('HTTP 502');
 		expect(failureReason({ status: 'error', body: new TypeError('Failed to fetch') })).toBe('Failed to fetch');
 		expect(failureReason({ status: 'error', body: {}, response: { status: 502 } })).toBe('HTTP 502');
 		expect(failureReason({ status: 'error', body: null })).toBe('The server could not be reached');
