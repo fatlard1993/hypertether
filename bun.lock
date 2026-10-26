@@ -14,7 +14,7 @@
         "eslint-plugin-unicorn": "^64.0.0",
         "eslint-plugin-write-good-comments": "^0.2.0",
         "globals": "^17.0.0",
-        "lldtdd": "^0.1.0",
+        "lldtdd": "^0.2.1",
         "prettier": "^3.8.3",
       },
     },
@@ -366,7 +366,7 @@
 
     "levn": ["levn@0.4.1", "", { "dependencies": { "prelude-ls": "^1.2.1", "type-check": "~0.4.0" } }, "sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ=="],
 
-    "lldtdd": ["lldtdd@0.1.0", "", { "dependencies": { "glob": "^11.0.0", "ts-morph": "^28.0.0" }, "peerDependencies": { "@happy-dom/global-registrator": ">=20" }, "optionalPeers": ["@happy-dom/global-registrator"], "os": [ "linux", "darwin", ], "bin": { "lldtdd": "src/cli.ts" } }, "sha512-opWuWwl/YV8O/OLvGAkQCXSPcr19CGhHT8vSb78VHfdgHdCc7bqVpvO7+yKKDkN46OQvSFk/3x/VNKBJULNQ5g=="],
+    "lldtdd": ["lldtdd@0.2.1", "", { "dependencies": { "glob": "^11.0.0", "ts-morph": "^28.0.0" }, "peerDependencies": { "@happy-dom/global-registrator": ">=20" }, "optionalPeers": ["@happy-dom/global-registrator"], "os": [ "linux", "darwin", ], "bin": { "lldtdd": "src/cli.ts" } }, "sha512-1X7Yvp71StQ1CkSvdfaukpl3teQwnPiXWnIFJWYFivUPWgnk8k9H2Sq39M6I/AHO1cgYnzn1TKuxFqm4hxWsrw=="],
 
     "locate-path": ["locate-path@6.0.0", "", { "dependencies": { "p-locate": "^5.0.0" } }, "sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw=="],
 

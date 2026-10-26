@@ -64,7 +64,7 @@
 		"eslint-plugin-unicorn": "^64.0.0",
 		"eslint-plugin-write-good-comments": "^0.2.0",
 		"globals": "^17.0.0",
-		"lldtdd": "^0.1.0",
+		"lldtdd": "^0.2.1",
 		"prettier": "^3.8.3"
 	}
 }
